@@ -1,0 +1,21 @@
+---
+- name: Install Apache
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Update package cache
+      apt:
+        update_cache: yes
+      when: ansible_os_family == 'Debian'  # For Debian/Ubuntu systems
+
+    - name: Install Apache
+      package:
+        name: apache2
+        state: present
+
+    - name: Start Apache service
+      service:
+        name: apache2
+        state: started
+        enabled: yes
