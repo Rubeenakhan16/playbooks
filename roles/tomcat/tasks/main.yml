@@ -1,54 +1,31 @@
 ---
-- name: Update package cache
-  apt: update_cache=yes cache_valid_time=3600
-
-- name: Install Java OpenJDK
+- name: Install Java
+  become: true
   apt:
     name: default-jdk
     state: present
 
-- name: Create Tomcat user and group
-  group:
-    name: tomcat
-    state: present
-  user:
-    name: tomcat
-    group: tomcat
-    state: present
-    home: /opt/tomcat
-
-- name: Download Tomcat binary
+- name: Download Apache Tomcat
   get_url:
-    url: https://www.apache.org/dyn/mirrors/tomcat/tomcat-8/v8.5.85/bin/apache-tomcat-8.5.85.tar.gz
-    dest: /tmp/tomcat.tar.gz
+    url: "https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.73/bin/apache-tomcat-8.5.73.tar.gz"
+    dest: "/tmp/apache-tomcat-8.5.73.tar.gz"
 
-- name: Extract Tomcat archive
-  unarchive:
-    src: /tmp/tomcat.tar.gz
-    dest: /opt/tomcat
-    owner: tomcat
-    group: tomcat
+- name: Extract Apache Tomcat
+  ansible.builtin.unarchive:
+    src: "/tmp/apache-tomcat-8.5.73.tar.gz"
+    dest: "/opt"
+    remote_src: yes
 
-- name: Enable firewall rule for Tomcat (adjust port if needed)
-  firewalld:
-    service: http
-    permanent: yes
-    state: enabled
+- name: Set ownership and permissions on Apache Tomcat directory
+  ansible.builtin.file:
+    path: "/opt/apache-tomcat-8.5.73"
+    owner: your_username
+    group: your_groupname
+    mode: "0755"
+    recurse: yes
 
-- name: Create a systemd service file for Tomcat
-  template:
-    src: tomcat.service.j2  # Replace with your template file
-    dest: /etc/systemd/system/tomcat.service
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Reload systemd daemon
-  systemd:
-    name: daemon-reload
-
-- name: Start and enable Tomcat service
-  systemd:
-    name: tomcat
-    enabled: yes
-    state: started
+- name: Start Apache Tomcat service
+  ansible.builtin.command: "/opt/apache-tomcat-8.5.73/bin/startup.sh"
+  async: 60
+  poll: 0
+  ignore_errors: yes
