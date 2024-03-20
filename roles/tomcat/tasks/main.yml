@@ -24,6 +24,6 @@
 
 - name: Start Apache Tomcat service
   systemd:
-    name: tomcat9
+    name: tomcat
     state: started
     enabled: yes
