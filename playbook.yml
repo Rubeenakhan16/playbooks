@@ -1,13 +1,14 @@
 ---
-- name: Install Apache
-  hosts: your_target_host
+- name: Patch EC2 instance
+  hosts: your_ec2_instance
   become: yes
+
   tasks:
     - name: Update package cache
       apt:
         update_cache: yes
 
-    - name: Install Apache
+    - name: Upgrade all packages
       apt:
-        name: apache2
-        state: present
+        upgrade: yes
+        update_cache: yes
