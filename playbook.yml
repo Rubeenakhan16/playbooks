@@ -1,6 +1,6 @@
 ---
 - name: Deploy Apache Tomcat
-  hosts: your_target_host_or_group
+  hosts: all
   become: true
   roles:
     - tomcat
