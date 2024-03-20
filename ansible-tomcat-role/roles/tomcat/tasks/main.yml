@@ -1,28 +1,31 @@
 ---
-- name: Deploy Apache Tomcat
-  hosts: your_target_host_or_group
+- name: Install Java
   become: true
-  tasks:
-    - name: Install Java Development Kit (JDK)
-      apt:
-        name: default-jdk
-        state: present
+  apt:
+    name: default-jdk
+    state: present
 
-    - name: Download Apache Tomcat tarball
-      get_url:
-        url: "https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.50/bin/apache-tomcat-9.0.50.tar.gz"
-        dest: "/tmp/apache-tomcat.tar.gz"
+- name: Download Apache Tomcat
+  get_url:
+    url: "https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.73/bin/apache-tomcat-8.5.73.tar.gz"
+    dest: "/tmp/apache-tomcat-8.5.73.tar.gz"
 
-    - name: Extract Apache Tomcat
-      unarchive:
-        src: "/tmp/apache-tomcat.tar.gz"
-        dest: "/opt"
-        remote_src: yes
-        creates: "/opt/apache-tomcat-9.0.50"
+- name: Extract Apache Tomcat
+  ansible.builtin.unarchive:
+    src: "/tmp/apache-tomcat-8.5.73.tar.gz"
+    dest: "/opt"
+    remote_src: yes
 
-    - name: Start Apache Tomcat service
-      systemd:
-        name: tomcat
-        state: started
-        enabled: yes
+- name: Set ownership and permissions on Apache Tomcat directory
+  ansible.builtin.file:
+    path: "/opt/apache-tomcat-8.5.73"
+    owner: ubuntu
+    group: ubuntu
+    mode: "0755"
+    recurse: yes
 
+- name: Start Apache Tomcat service
+  ansible.builtin.command: "/opt/apache-tomcat-8.5.73/bin/startup.sh"
+  async: 60
+  poll: 0
+  ignore_errors: yes
