@@ -1,29 +1,54 @@
 ---
-- name: Install Java
-  become: true
+- name: Update package cache
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Install Java OpenJDK
   apt:
     name: default-jdk
     state: present
 
-- name: Download Apache Tomcat
+- name: Create Tomcat user and group
+  group:
+    name: tomcat
+    state: present
+  user:
+    name: tomcat
+    group: tomcat
+    state: present
+    home: /opt/tomcat
+
+- name: Download Tomcat binary
   get_url:
-    url: "https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.50/bin/apache-tomcat-9.0.50.tar.gz"
-    dest: "/tmp/apache-tomcat.tar.gz"
+    url: https://www.apache.org/dyn/mirrors/tomcat/tomcat-8/v8.5.85/bin/apache-tomcat-8.5.85.tar.gz
+    dest: /tmp/tomcat.tar.gz
 
-- name: Extract Apache Tomcat
+- name: Extract Tomcat archive
   unarchive:
-    src: "/tmp/apache-tomcat.tar.gz"
-    dest: "/opt"
-    remote_src: yes
+    src: /tmp/tomcat.tar.gz
+    dest: /opt/tomcat
+    owner: tomcat
+    group: tomcat
 
-- name: Set permissions on Apache Tomcat directory
-  file:
-    path: "/opt/apache-tomcat-9.0.50"
-    mode: 0755
-    state: directory
+- name: Enable firewall rule for Tomcat (adjust port if needed)
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
 
-- name: Start Apache Tomcat service
+- name: Create a systemd service file for Tomcat
+  template:
+    src: tomcat.service.j2  # Replace with your template file
+    dest: /etc/systemd/system/tomcat.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Reload systemd daemon
+  systemd:
+    name: daemon-reload
+
+- name: Start and enable Tomcat service
   systemd:
     name: tomcat
-    state: started
     enabled: yes
+    state: started
