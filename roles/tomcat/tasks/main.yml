@@ -23,7 +23,7 @@
     state: directory
 
 - name: Start Apache Tomcat service
-  service:
-    name: tomcat
+  systemd:
+    name: tomcat9
     state: started
     enabled: yes
