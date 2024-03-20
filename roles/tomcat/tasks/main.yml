@@ -19,8 +19,8 @@
 - name: Set ownership and permissions on Apache Tomcat directory
   ansible.builtin.file:
     path: "/opt/apache-tomcat-8.5.73"
-    owner: your_username
-    group: your_groupname
+    owner: ubuntu
+    group: ubuntu
     mode: "0755"
     recurse: yes
 
