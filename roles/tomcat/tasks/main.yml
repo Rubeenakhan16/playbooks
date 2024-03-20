@@ -1,0 +1,29 @@
+---
+- name: Install Java
+  become: true
+  apt:
+    name: default-jdk
+    state: present
+
+- name: Download Apache Tomcat
+  get_url:
+    url: "https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.50/bin/apache-tomcat-9.0.50.tar.gz"
+    dest: "/tmp/apache-tomcat.tar.gz"
+
+- name: Extract Apache Tomcat
+  unarchive:
+    src: "/tmp/apache-tomcat.tar.gz"
+    dest: "/opt"
+    remote_src: yes
+
+- name: Set permissions on Apache Tomcat directory
+  file:
+    path: "/opt/apache-tomcat-9.0.50"
+    mode: 0755
+    state: directory
+
+- name: Start Apache Tomcat service
+  service:
+    name: tomcat
+    state: started
+    enabled: yes
